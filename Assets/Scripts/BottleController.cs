@@ -9,6 +9,7 @@ public class BottleController : MonoBehaviour
 
     public AnimationCurve ScaleAndRotationMultiplierCurve;
     public AnimationCurve FillAmountCurve;
+    public AnimationCurve RotationSpeedMultiplierCurve;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -56,12 +57,41 @@ public class BottleController : MonoBehaviour
             float fillAmount = Mathf.Lerp(startFill, endFill, fillProgress);
             bottleMaskSR.material.SetFloat("_FillAmount", Mathf.Clamp01(fillAmount));
 
-            t += Time.deltaTime;
+            t += Time.deltaTime*RotationSpeedMultiplierCurve.Evaluate(angleValue);
             yield return null;
         }
 
         transform.eulerAngles = new Vector3(0f, 0f, 90f);
         bottleMaskSR.material.SetFloat("_SARM", ScaleAndRotationMultiplierCurve.Evaluate(90f));
         bottleMaskSR.material.SetFloat("_FillAmount", endFill);
+
+        StartCoroutine(RotateBottleBack());
+    }
+
+    IEnumerator RotateBottleBack()
+    {
+        float t = 0f;
+
+        while (t < timeToRotate)
+        {
+            float lerpValue = t / timeToRotate;
+            float angleValue = Mathf.Lerp(90f, 0f, lerpValue);
+
+            transform.eulerAngles = new Vector3(0f, 0f, angleValue);
+
+            float sarm = ScaleAndRotationMultiplierCurve.Evaluate(angleValue);
+            bottleMaskSR.material.SetFloat("_SARM", sarm);
+
+          /*float fillProgress = FillAmountCurve.Evaluate(lerpValue);
+            float fillAmount = Mathf.Lerp(startFill, endFill, fillProgress);
+            bottleMaskSR.material.SetFloat("_FillAmount", Mathf.Clamp01(fillAmount));
+            */
+
+            t += Time.deltaTime;
+            yield return null;
+        }
+
+        transform.eulerAngles = new Vector3(0f, 0f, 0f);
+        bottleMaskSR.material.SetFloat("_SARM", ScaleAndRotationMultiplierCurve.Evaluate(0f));
     }
 }

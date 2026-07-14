@@ -405,17 +405,53 @@ MonoBehaviour:
       inWeight: 0.33333334
       outWeight: 0.33333334
     - serializedVersion: 3
-      time: 0.35
-      value: 0
-      inSlope: 0
-      outSlope: 0
+      time: 0.43024468
+      value: 0.25607497
+      inSlope: 0.9444634
+      outSlope: 0.9444634
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.14341062
+    - serializedVersion: 3
+      time: 0.61176616
+      value: 0.41289786
+      inSlope: 0.9556219
+      outSlope: 0.9556219
       tangentMode: 136
       weightedMode: 0
       inWeight: 0.33333334
       outWeight: 0.33333334
     - serializedVersion: 3
+      time: 0.7552045
+      value: 0.5666137
+      inSlope: 1.403229
+      outSlope: 1.403229
+      tangentMode: 136
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.88625705
+      value: 0.79807144
+      inSlope: 1.9635875
+      outSlope: 1.9635875
+      tangentMode: 136
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.95562834
+      value: 0.9601634
+      inSlope: 3.3359265
+      outSlope: 3.3359265
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.4833888
+    - serializedVersion: 3
       time: 1
-      value: 1
+      value: 1.0529764
       inSlope: 0
       outSlope: 0
       tangentMode: 136
@@ -425,7 +461,31 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  timeToRotate: 4
+  RotationSpeedMultiplierCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 136
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 90
+      value: 0.2
+      inSlope: -0.025604716
+      outSlope: -0.025604716
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.019852871
+      outWeight: 0.33333334
+    m_PreInfinity: 0
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  timeToRotate: 1
 --- !u!1 &619394800
 GameObject:
   m_ObjectHideFlags: 0
