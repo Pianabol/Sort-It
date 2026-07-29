@@ -10,32 +10,23 @@ public class GameManager : MonoBehaviour
 
     public static bool startInGameMode = true;
 
+    // Şişeleri artık biz Start'ta aramıyoruz, LevelManager yaratınca buraya atıyor.
     public BottleController[] allBottles;
 
     private void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else if (Instance != this)
-        {
-            Destroy(gameObject);
-        }
+        if (Instance == null) Instance = this;
+        else if (Instance != this) Destroy(gameObject);
     }
 
-    // YENİ EKLENDİ: Sahne yenilendiğinde eski kalıntıları temizle (Hayalet referansları engeller)
     private void OnDestroy()
     {
-        if (Instance == this)
-        {
-            Instance = null;
-        }
+        if (Instance == this) Instance = null;
     }
 
     void Start()
     {
-        allBottles = FindObjectsByType<BottleController>(FindObjectsSortMode.None);
+        // FindObjectsByType KODU SİLİNDİ (Çakışmayı önlemek için)
 
         if (startInGameMode)
         {
@@ -81,8 +72,6 @@ public class GameManager : MonoBehaviour
 
         foreach (BottleController bottle in allBottles)
         {
-            // === YENİ EKLENDİ: GÜVENLİK KİLİDİ ===
-            // Eğer sahne yenilenirken vs. şişe silinmişse, hata vermeden diğerine geç!
             if (bottle == null) continue;
 
             bool isBottleComplete = false;
@@ -129,10 +118,6 @@ public class GameManager : MonoBehaviour
 
     public void NextButtonCallBack()
     {
-        int nextLevelIndex = PlayerPrefs.GetInt("CurrentLevel", 0) + 1;
-        PlayerPrefs.SetInt("CurrentLevel", nextLevelIndex);
-        PlayerPrefs.Save();
-
         if (CanvasFader.Instance != null)
         {
             CanvasFader.Instance.FadeOut(() => {

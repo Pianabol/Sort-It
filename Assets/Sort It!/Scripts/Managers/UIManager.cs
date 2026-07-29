@@ -32,7 +32,6 @@ public class UIManager : MonoBehaviour, IGameStateListener
         }
     }
 
-    // ScoreManager bağlantıları aktifleştirildi!
     private void OnEnable()
     {
         ScoreManager.OnScoreUpdated += UpdateScoreUI;
@@ -62,7 +61,6 @@ public class UIManager : MonoBehaviour, IGameStateListener
             case EGameState.LEVELCOMPLETE:
                 if (levelCompletePanel) levelCompletePanel.SetActive(true);
                 
-                // Skor yazdırma aktifleştirildi!
                 if (ScoreManager.Instance != null && levelCompleteScoreText != null)
                     levelCompleteScoreText.text = "Score : " + ScoreManager.Instance.CurrentScore.ToString();
                 
@@ -70,7 +68,6 @@ public class UIManager : MonoBehaviour, IGameStateListener
             case EGameState.GAMEOVER:
                 if (gameOverPanel) gameOverPanel.SetActive(true);
 
-                // Skor yazdırma aktifleştirildi!
                 if (ScoreManager.Instance != null && gameOverScoreText != null)
                     gameOverScoreText.text = "Score : " + ScoreManager.Instance.CurrentScore.ToString();
                 
@@ -130,7 +127,11 @@ public class UIManager : MonoBehaviour, IGameStateListener
     {
         if (levelPopupText == null) return;
 
-        levelPopupText.text = "LEVEL 1";
+        // DİNAMİK LEVEL YAZISI (Hardcode düzeltildi!)
+        if (LevelManager.Instance != null)
+        {
+            levelPopupText.text = "LEVEL " + LevelManager.Instance.CurrentLevelNum.ToString();
+        }
 
         levelPopupText.gameObject.SetActive(true);
         levelPopupText.transform.localScale = Vector3.zero;
