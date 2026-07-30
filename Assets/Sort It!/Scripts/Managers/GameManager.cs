@@ -12,22 +12,18 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else if (Instance != this)
-        {
-            Destroy(gameObject);
-        }
+        if (Instance == null) Instance = this;
+        else if (Instance != this) Destroy(gameObject);
     }
 
     private void OnDestroy()
     {
-        if (Instance == this)
-        {
-            Instance = null;
-        }
+        if (Instance == this) Instance = null;
+    }
+    
+    private void Start()
+    {
+        SetGameState(EGameState.MENU);
     }
 
     public void SetGameState(EGameState newState)
@@ -49,16 +45,16 @@ public class GameManager : MonoBehaviour
         return gameState == EGameState.GAME;
     }
 
-    // LevelManager level'ı kurup bu metodu çağırdığında oyun resmen başlar!
     public void StartGame()
     {
-        if (ScoreManager.Instance != null) ScoreManager.Instance.ResetScore();
         SetGameState(EGameState.GAME);
+        CheckGameWin(); // Hacker Koruması (Baştan kilitli level kontrolü)
     }
 
     public void CheckGameWin()
     {
         if (!IsGame()) return; 
+        if (allBottles == null || allBottles.Length == 0) return;
 
         bool isGameWon = true;
 
@@ -87,50 +83,63 @@ public class GameManager : MonoBehaviour
         if (isGameWon)
         {
             Debug.Log("KAZANDIN MORUK! UI EKRANI GELİYOR!");
-            if (ScoreManager.Instance != null) ScoreManager.Instance.CalculateStars();
+            // YILDIZ HESAPLAMA SİLİNDİ! Direkt Level Complete'e geçiyor.
             SetGameState(EGameState.LEVELCOMPLETE); 
+            return; 
         }
+
+        if (!HasAvailableMoves())
+        {
+            Debug.Log("HAMLE KALMADI KUZEN! GAME OVER EKRANI GELİYOR!");
+            SetGameState(EGameState.GAMEOVER);
+        }
+    }
+
+    private bool HasAvailableMoves()
+    {
+        for (int i = 0; i < allBottles.Length; i++)
+        {
+            BottleController source = allBottles[i];
+            
+            if (source == null || source.numberOfColorsInBottle == 0) continue;
+            if (source.numberOfColorsInBottle == 4 && source.numberOfTopColorLayers == 4) continue;
+
+            source.UpdateTopColorValues();
+
+            for (int j = 0; j < allBottles.Length; j++)
+            {
+                if (i == j) continue;
+
+                BottleController target = allBottles[j];
+                
+                if (target == null || target.numberOfColorsInBottle == 4) continue;
+
+                target.UpdateTopColorValues();
+
+                if (target.FillBottleCheck(source.topColor))
+                {
+                    return true; 
+                }
+            }
+        }
+        return false;
     }
 
     public void HomeButtonCallBack()
     {
-        if (CanvasFader.Instance != null)
-        {
-            CanvasFader.Instance.FadeOut(() => {
-                SceneManager.LoadScene(0);
-            });
-        }
-        else
-        {
-            SceneManager.LoadScene(0);
-        }
+        if (CanvasFader.Instance != null) CanvasFader.Instance.FadeOut(() => { SceneManager.LoadScene(0); });
+        else SceneManager.LoadScene(0);
     }
 
     public void NextButtonCallBack()
     {
-        if (CanvasFader.Instance != null)
-        {
-            CanvasFader.Instance.FadeOut(() => {
-                SceneManager.LoadScene(0);
-            });
-        }
-        else
-        {
-            SceneManager.LoadScene(0);
-        }
+        if (CanvasFader.Instance != null) CanvasFader.Instance.FadeOut(() => { SceneManager.LoadScene(0); });
+        else SceneManager.LoadScene(0);
     }
 
     public void RetryButtonCallBack()
     {
-        if (CanvasFader.Instance != null)
-        {
-            CanvasFader.Instance.FadeOut(() => {
-                SceneManager.LoadScene(0);
-            });
-        }
-        else
-        {
-            SceneManager.LoadScene(0);
-        }
+        if (CanvasFader.Instance != null) CanvasFader.Instance.FadeOut(() => { SceneManager.LoadScene(0); });
+        else SceneManager.LoadScene(0);
     }
 }

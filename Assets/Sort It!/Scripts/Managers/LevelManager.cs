@@ -1,11 +1,12 @@
+using System;
 using UnityEngine;
 
 public class LevelManager : MonoBehaviour, IGameStateListener
 {
     public static LevelManager Instance;
+    public static event Action<Level> OnLevelSpawned; // LEVEL DOĞDUĞUNDA FIRLATILACAK HABER
 
     [Header(" Levels ")]
-    [Tooltip("Oluşturduğun Level Prefab'larını buraya sürükle")]
     public GameObject[] levelPrefabs; 
     
     private GameObject currentLevelInstance;
@@ -19,49 +20,45 @@ public class LevelManager : MonoBehaviour, IGameStateListener
         else if (Instance != this) Destroy(gameObject);
     }
 
-    private void Start()
+    // Sahne yeniden yüklendiğinde (Retry/Next) kendini hafızadan temizler!
+    private void OnDestroy()
     {
-        // Oyuna girdiğimiz an doğrudan Level'ı yaratıp GameManager'a "BAŞLA" emri veriyoruz!
-        LoadAndStartLevel();
+        if (Instance == this) Instance = null;
     }
 
-    public void LoadAndStartLevel()
+    private void SpawnLevel()
     {
-        // 1. ESKİ LEVELİ TEMİZLE
         foreach (Transform child in transform)
         {
             Destroy(child.gameObject);
         }
 
-        if (levelPrefabs == null || levelPrefabs.Length == 0)
-        {
-            Debug.LogError("Moruk LevelManager'da hiç prefab yok!");
-            return;
-        }
+        if (levelPrefabs == null || levelPrefabs.Length == 0) return;
 
-        // 2. LEVEL İNDEKSİNİ HESAPLA
         int levelIndex = PlayerPrefs.GetInt(LEVEL_KEY, 0);
         int validatedIndex = levelIndex % levelPrefabs.Length;
 
-        // 3. LEVELİ YARAT
+        // 1. Level'ı sahnede doğur
         currentLevelInstance = Instantiate(levelPrefabs[validatedIndex], transform);
 
-        // 4. INSTANCE İLE DOĞRUDAN İLETİŞİM (Amelelik Bitti!):
         if (GameManager.Instance != null)
         {
-            // A) Şişeleri GameManager'a ver
             GameManager.Instance.allBottles = currentLevelInstance.GetComponentsInChildren<BottleController>();
-            
-            // B) GameManager'a "Level hazır, oyunu başlat!" emri ver
-            GameManager.Instance.StartGame();
         }
+
+        // 2. Level doğduktan SONRA TimerManager'a haber ver ve doğan Level'ı gönder!
+        Level spawnedLevel = currentLevelInstance.GetComponent<Level>();
+        OnLevelSpawned?.Invoke(spawnedLevel);
     }
 
     public void GameStateChanged(EGameState newState)
     {
-        if (newState == EGameState.LEVELCOMPLETE)
+        if (newState == EGameState.GAME)
         {
-            // Level bittiğinde hafızadaki level numarasını artır
+            SpawnLevel();
+        }
+        else if (newState == EGameState.LEVELCOMPLETE)
+        {
             int nextLevelIndex = PlayerPrefs.GetInt(LEVEL_KEY, 0) + 1;
             PlayerPrefs.SetInt(LEVEL_KEY, nextLevelIndex);
             PlayerPrefs.Save();

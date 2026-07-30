@@ -9,38 +9,8 @@ public class UIManager : MonoBehaviour, IGameStateListener
     [SerializeField] private GameObject levelCompletePanel;
     [SerializeField] private GameObject gameOverPanel;
 
-    [Header(" Score UI Elements ")]
-    [SerializeField] private TextMeshProUGUI scoreText;
-    [SerializeField] private RectTransform pointDiv;
+    [Header(" UI Elements ")]
     [SerializeField] private TextMeshProUGUI levelPopupText;
-
-    [Header(" End Game Score Texts ")]
-    [SerializeField] private TextMeshProUGUI levelCompleteScoreText;
-    [SerializeField] private TextMeshProUGUI gameOverScoreText;
-
-    private Vector3 originalPointDivPos; 
-    private Vector3 originalPointDivScale; 
-
-    private void Start()
-    {
-        if (pointDiv != null) 
-        {
-            originalPointDivPos = pointDiv.localPosition;
-            originalPointDivScale = pointDiv.localScale; 
-            
-            if (scoreText != null) scoreText.text = ""; 
-        }
-    }
-
-    private void OnEnable()
-    {
-        ScoreManager.OnScoreUpdated += UpdateScoreUI;
-    }
-
-    private void OnDisable()
-    {
-        ScoreManager.OnScoreUpdated -= UpdateScoreUI;
-    }
 
     public void GameStateChanged(EGameState newState)
     {
@@ -60,66 +30,10 @@ public class UIManager : MonoBehaviour, IGameStateListener
                 break;
             case EGameState.LEVELCOMPLETE:
                 if (levelCompletePanel) levelCompletePanel.SetActive(true);
-                
-                if (ScoreManager.Instance != null && levelCompleteScoreText != null)
-                    levelCompleteScoreText.text = "Score : " + ScoreManager.Instance.CurrentScore.ToString();
-                
                 break;
             case EGameState.GAMEOVER:
                 if (gameOverPanel) gameOverPanel.SetActive(true);
-
-                if (ScoreManager.Instance != null && gameOverScoreText != null)
-                    gameOverScoreText.text = "Score : " + ScoreManager.Instance.CurrentScore.ToString();
-                
                 break;
-        }
-    }
-
-    public void UpdateScoreUI(int totalScore, int scoreChange)
-    {
-        if (scoreText == null || pointDiv == null) return;
-
-        if (totalScore == 0 && scoreChange == 0)
-        {
-            scoreText.text = "";
-            return;
-        }
-        else
-        {
-            scoreText.text = totalScore.ToString();
-        }
-
-        LeanTween.cancel(pointDiv.gameObject);
-        pointDiv.localPosition = originalPointDivPos;
-        pointDiv.localScale = originalPointDivScale; 
-
-        if (scoreChange > 0)
-        {
-            Vector3 targetScale = originalPointDivScale * 1.3f; 
-            
-            LeanTween.scale(pointDiv.gameObject, targetScale, 0.12f)
-                .setEase(LeanTweenType.easeOutBack)
-                .setOnComplete(() =>
-                {
-                    if (pointDiv != null)
-                    {
-                        LeanTween.scale(pointDiv.gameObject, originalPointDivScale, 0.12f)
-                            .setEase(LeanTweenType.easeInSine);
-                    }
-                });
-        }
-        else if (scoreChange < 0)
-        {
-            LeanTween.moveLocalX(pointDiv.gameObject, originalPointDivPos.x + 15f, 0.2f).setEasePunch();
-            
-            LeanTween.cancel(scoreText.gameObject); 
-            scoreText.color = Color.white; 
-
-            LeanTween.value(scoreText.gameObject, Color.white, Color.red, 0.12f)
-                .setLoopPingPong(1)
-                .setOnUpdate((Color c) => {
-                    if (scoreText != null) scoreText.color = c;
-                });
         }
     }
 
@@ -127,7 +41,6 @@ public class UIManager : MonoBehaviour, IGameStateListener
     {
         if (levelPopupText == null) return;
 
-        // DİNAMİK LEVEL YAZISI (Hardcode düzeltildi!)
         if (LevelManager.Instance != null)
         {
             levelPopupText.text = "LEVEL " + LevelManager.Instance.CurrentLevelNum.ToString();

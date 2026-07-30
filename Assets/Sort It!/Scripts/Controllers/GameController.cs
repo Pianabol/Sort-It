@@ -9,13 +9,11 @@ public class GameController : MonoBehaviour
 
     void Awake()
     {
-        // FPS Optimizasyonu: Her frame'de Camera.main çağırmak yerine başta hafızaya alıyoruz.
         mainCam = Camera.main; 
     }
 
     void Update()
     {
-        // 1. GUARD CLAUSE: Oyun durumunda değilsek veya tıklama yoksa KODU AŞAĞI İNDİRME, ÇIK!
         if (GameManager.Instance == null || !GameManager.Instance.IsGame()) return;
         if (!Input.GetMouseButtonDown(0)) return;
 
@@ -24,14 +22,10 @@ public class GameController : MonoBehaviour
 
         RaycastHit2D hit = Physics2D.Raycast(mousePos2D, Vector2.zero);
 
-        // 2. GUARD CLAUSE: Boşa tıkladıysa veya tıkladığı şey şişe değilse ÇIK!
         if (hit.collider == null) return;
         BottleController clickedBottle = hit.collider.GetComponent<BottleController>();
         if (clickedBottle == null) return;
 
-        // --- BUNDAN SONRASI TERTEMİZ OYUN MANTIĞI ---
-
-        // Durum 1: Hiç şişe seçilmemişse
         if (FirstBottle == null)
         {
             FirstBottle = clickedBottle;
@@ -39,7 +33,6 @@ public class GameController : MonoBehaviour
             return;
         }
 
-        // Durum 2: Seçili şişeye tekrar tıklanmışsa (İptal et)
         if (FirstBottle == clickedBottle)
         {
             FirstBottle.DeselectBottle(); 
@@ -47,7 +40,6 @@ public class GameController : MonoBehaviour
             return;
         }
 
-        // Durum 3: Hedef şişeye tıklanmışsa (Transferi dene)
         SecondBottle = clickedBottle;
         FirstBottle.bottleControllerRef = SecondBottle;
 
@@ -57,17 +49,13 @@ public class GameController : MonoBehaviour
         if (SecondBottle.FillBottleCheck(FirstBottle.topColor) == true)
         {
             FirstBottle.StartColorTransfer();
-            
-            // Başarılı transferde skoru artır
-            if (ScoreManager.Instance != null) ScoreManager.Instance.AddMove();
+            // SKOR EKLEME SATIRI BURADAN SİLİNDİ! Artık sadece sıvıyı aktarıyor.
         }
         else
         {
-            // Transfer geçersizse ilk şişeyi yerine indir
             FirstBottle.DeselectBottle(); 
         }
 
-        // İşlem bitti, referansları temizle ki yeni hamleye hazır olsun
         FirstBottle = null;
         SecondBottle = null;
     }
