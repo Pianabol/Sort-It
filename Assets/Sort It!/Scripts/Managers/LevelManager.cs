@@ -19,9 +19,13 @@ public class LevelManager : MonoBehaviour, IGameStateListener
         else if (Instance != this) Destroy(gameObject);
     }
 
-    // DİKKAT: Start() metodunu sildik ki GameManager ile aynı anda 2 kez level üretmesin!
+    private void Start()
+    {
+        // Oyuna girdiğimiz an doğrudan Level'ı yaratıp GameManager'a "BAŞLA" emri veriyoruz!
+        LoadAndStartLevel();
+    }
 
-    private void SpawnLevel()
+    public void LoadAndStartLevel()
     {
         // 1. ESKİ LEVELİ TEMİZLE
         foreach (Transform child in transform)
@@ -29,33 +33,35 @@ public class LevelManager : MonoBehaviour, IGameStateListener
             Destroy(child.gameObject);
         }
 
-        if (levelPrefabs == null || levelPrefabs.Length == 0) return;
+        if (levelPrefabs == null || levelPrefabs.Length == 0)
+        {
+            Debug.LogError("Moruk LevelManager'da hiç prefab yok!");
+            return;
+        }
 
-        // 2. LEVEL İNDEKSİNİ HESAPLA (Modulo ile sonsuz döngü)
+        // 2. LEVEL İNDEKSİNİ HESAPLA
         int levelIndex = PlayerPrefs.GetInt(LEVEL_KEY, 0);
         int validatedIndex = levelIndex % levelPrefabs.Length;
 
         // 3. LEVELİ YARAT
         currentLevelInstance = Instantiate(levelPrefabs[validatedIndex], transform);
 
-        // 4. KUSURSUZ İLETİŞİM: GameManager'a "Git sahnede ara" demek yerine,
-        // direkt kendi yarattığımız levelin içindeki şişeleri veriyoruz! (10 kat daha performanslı)
+        // 4. INSTANCE İLE DOĞRUDAN İLETİŞİM (Amelelik Bitti!):
         if (GameManager.Instance != null)
         {
+            // A) Şişeleri GameManager'a ver
             GameManager.Instance.allBottles = currentLevelInstance.GetComponentsInChildren<BottleController>();
+            
+            // B) GameManager'a "Level hazır, oyunu başlat!" emri ver
+            GameManager.Instance.StartGame();
         }
     }
 
     public void GameStateChanged(EGameState newState)
     {
-        if (newState == EGameState.GAME)
+        if (newState == EGameState.LEVELCOMPLETE)
         {
-            // State Game olduğunda Level'i yarat!
-            SpawnLevel();
-        }
-        else if (newState == EGameState.LEVELCOMPLETE)
-        {
-            // Level bittiği an hafızadaki level değerini +1 artırıyoruz
+            // Level bittiğinde hafızadaki level numarasını artır
             int nextLevelIndex = PlayerPrefs.GetInt(LEVEL_KEY, 0) + 1;
             PlayerPrefs.SetInt(LEVEL_KEY, nextLevelIndex);
             PlayerPrefs.Save();

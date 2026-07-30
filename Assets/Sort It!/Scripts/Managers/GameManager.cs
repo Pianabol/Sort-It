@@ -8,34 +8,25 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance;
     private EGameState gameState;
 
-    public static bool startInGameMode = true;
-
-    // Şişeleri artık biz Start'ta aramıyoruz, LevelManager yaratınca buraya atıyor.
     public BottleController[] allBottles;
 
     private void Awake()
     {
-        if (Instance == null) Instance = this;
-        else if (Instance != this) Destroy(gameObject);
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else if (Instance != this)
+        {
+            Destroy(gameObject);
+        }
     }
 
     private void OnDestroy()
     {
-        if (Instance == this) Instance = null;
-    }
-
-    void Start()
-    {
-        // FindObjectsByType KODU SİLİNDİ (Çakışmayı önlemek için)
-
-        if (startInGameMode)
+        if (Instance == this)
         {
-            startInGameMode = false; 
-            StartGame();
-        }
-        else
-        {
-            SetGameState(EGameState.MENU);
+            Instance = null;
         }
     }
 
@@ -58,6 +49,7 @@ public class GameManager : MonoBehaviour
         return gameState == EGameState.GAME;
     }
 
+    // LevelManager level'ı kurup bu metodu çağırdığında oyun resmen başlar!
     public void StartGame()
     {
         if (ScoreManager.Instance != null) ScoreManager.Instance.ResetScore();
@@ -105,13 +97,11 @@ public class GameManager : MonoBehaviour
         if (CanvasFader.Instance != null)
         {
             CanvasFader.Instance.FadeOut(() => {
-                startInGameMode = false; 
                 SceneManager.LoadScene(0);
             });
         }
         else
         {
-            startInGameMode = false;
             SceneManager.LoadScene(0);
         }
     }
@@ -121,13 +111,11 @@ public class GameManager : MonoBehaviour
         if (CanvasFader.Instance != null)
         {
             CanvasFader.Instance.FadeOut(() => {
-                startInGameMode = true;  
                 SceneManager.LoadScene(0);
             });
         }
         else
         {
-            startInGameMode = true;
             SceneManager.LoadScene(0);
         }
     }
@@ -137,13 +125,11 @@ public class GameManager : MonoBehaviour
         if (CanvasFader.Instance != null)
         {
             CanvasFader.Instance.FadeOut(() => {
-                startInGameMode = true;  
                 SceneManager.LoadScene(0);
             });
         }
         else
         {
-            startInGameMode = true;
             SceneManager.LoadScene(0);
         }
     }
