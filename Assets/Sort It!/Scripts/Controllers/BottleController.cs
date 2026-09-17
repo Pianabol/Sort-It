@@ -32,31 +32,25 @@ public class BottleController : MonoBehaviour
 
     private float directionMultiplier = 1.0f;
     
-
     Vector3 originalPosition;
     Vector3 startPosition;
     Vector3 endPosition;
 
-
     public LineRenderer lineRenderer;
-
     public float timeToRotate = 1.0f;
 
-
     [Header("Selection Settings")]
-    public float selectYOffset = 0.4f;       // Şişenin havaya kalkma miktarı
-    public float selectScaleMultiplier = 1.1f; // 1.1x büyüme oranı
-    public float selectAnimSpeed = 12f;      // Animasyon hızı
+    public float selectYOffset = 0.4f;       
+    public float selectScaleMultiplier = 1.1f; 
+    public float selectAnimSpeed = 12f;      
 
     private Vector3 originalScale;
     private Coroutine selectCoroutine;
 
-
     void Start()
     {
         originalPosition = transform.position;
-
-        originalScale = transform.localScale; // Orijinal ölçeği hafızaya alıyoruz
+        originalScale = transform.localScale;
 
         bottleMaskSR.material.SetFloat("_FillAmount", fillAmounts[numberOfColorsInBottle]);
 
@@ -81,11 +75,9 @@ public class BottleController : MonoBehaviour
                     bottleControllerRef.bottleColors[bottleControllerRef.numberOfColorsInBottle+i] = topColor;
                 }
                 bottleControllerRef.UpdateColorsOnShader();
-
             }
 
             CalculateRotationIndex(4 - bottleControllerRef.numberOfColorsInBottle);
-
             StartCoroutine(RotateBottle());
         } 
     }
@@ -157,7 +149,6 @@ public class BottleController : MonoBehaviour
             transform.position = Vector3.Lerp(startPosition, endPosition, t);
             t+=Time.deltaTime * 2;
             yield return new WaitForEndOfFrame();
-
         }
 
         transform.position = endPosition;
@@ -176,11 +167,10 @@ public class BottleController : MonoBehaviour
             transform.position = Vector3.Lerp(startPosition, endPosition, t);
             t+=Time.deltaTime * 2;
             yield return new WaitForEndOfFrame();
-
         }
 
         transform.position = endPosition;
-        transform.localScale = originalScale; // Ölçeği kesin olarak sıfırla
+        transform.localScale = originalScale;
 
         transform.GetComponent<SpriteRenderer>().sortingOrder -= 2;
         bottleMaskSR.sortingOrder -= 2;
@@ -211,7 +201,6 @@ public class BottleController : MonoBehaviour
 
             transform.RotateAround(chosenRotationPoint.position, Vector3.forward, lastAngleValue - angleValue);
             
-            // Curve'lerin icine her zaman pozitif (Mathf.Abs) degeri yolluyoruz!
             bottleMaskSR.material.SetFloat("_SARM", ScaleAndRotationMultiplierCurve.Evaluate(Mathf.Abs(angleValue)));
             
             if(fillAmounts[numberOfColorsInBottle] > FillAmountCurve.Evaluate(Mathf.Abs(angleValue))+0.005f)
@@ -225,6 +214,9 @@ public class BottleController : MonoBehaviour
                     lineRenderer.SetPosition(1, chosenRotationPoint.position - Vector3.up * 1.45f);
 
                     lineRenderer.enabled = true;
+
+                    // TAM BU ANDA: Sıvı dökülmeye başladı, sesi başlat!
+                    if (SoundManager.Instance != null) SoundManager.Instance.StartPourSound();
                 }
                 
                 bottleMaskSR.material.SetFloat("_FillAmount", FillAmountCurve.Evaluate(Mathf.Abs(angleValue)));
@@ -233,7 +225,6 @@ public class BottleController : MonoBehaviour
             }
 
             t+=Time.deltaTime*RotationSpeedMultiplier.Evaluate(Mathf.Abs(angleValue));
-            
             lastAngleValue = angleValue;
 
             yield return new WaitForEndOfFrame();
@@ -248,6 +239,9 @@ public class BottleController : MonoBehaviour
         bottleControllerRef.numberOfColorsInBottle += numberOfColorsToTransfer;
 
         lineRenderer.enabled = false;
+
+        // TAM BU ANDA: Sıvı akışı bitti, sesi kes!
+        if (SoundManager.Instance != null) SoundManager.Instance.StopPourSound();
 
         StartCoroutine(RotateBottleBack());
     }
@@ -270,15 +264,13 @@ public class BottleController : MonoBehaviour
             bottleMaskSR.material.SetFloat("_SARM", ScaleAndRotationMultiplierCurve.Evaluate(Mathf.Abs(angleValue)));
 
             lastAngleValue = angleValue;
-            
             t+=Time.deltaTime;
 
             yield return new WaitForEndOfFrame();
         }
 
         UpdateTopColorValues();
-
-        bottleControllerRef.UpdateTopColorValues(); // Suyu ALAN (hedef) şişeyi de günceller!
+        bottleControllerRef.UpdateTopColorValues();
 
         angleValue = 0f;
         transform.eulerAngles = new Vector3(0f, 0f, angleValue);

@@ -34,9 +34,15 @@ public class UIManager : MonoBehaviour, IGameStateListener
                 break;
             case EGameState.LEVELCOMPLETE:
                 if (levelCompletePanel) levelCompletePanel.SetActive(true);
+                
+                // YENİ EKLENDİ: Zafer Sesi!
+                if (SoundManager.Instance != null) SoundManager.Instance.PlayWinSound(); 
                 break;
             case EGameState.GAMEOVER:
                 if (gameOverPanel) gameOverPanel.SetActive(true);
+                
+                // YENİ EKLENDİ: Kaybetme Sesi!
+                if (SoundManager.Instance != null) SoundManager.Instance.PlayLoseSound(); 
                 break;
         }
     }

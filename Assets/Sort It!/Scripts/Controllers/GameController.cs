@@ -30,6 +30,10 @@ public class GameController : MonoBehaviour
         {
             FirstBottle = clickedBottle;
             FirstBottle.SelectBottle(); 
+            
+            // YENİ EKLENDİ: Şişe Seçme Sesi!
+            if (SoundManager.Instance != null) SoundManager.Instance.PlaySFX(SoundManager.Instance.bottleSelectSound);
+            
             return;
         }
 
@@ -49,7 +53,6 @@ public class GameController : MonoBehaviour
         if (SecondBottle.FillBottleCheck(FirstBottle.topColor) == true)
         {
             FirstBottle.StartColorTransfer();
-            // SKOR EKLEME SATIRI BURADAN SİLİNDİ! Artık sadece sıvıyı aktarıyor.
         }
         else
         {
